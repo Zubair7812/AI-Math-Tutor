@@ -32,7 +32,7 @@ An interactive AI-powered math tutor web application built with Streamlit and Ge
 
 ## Installation
 
-1. Clone the repository: `git clone https://github.com/Zubair7812/AI-Math-Tutor.git` (Replace with your repo URL)
+1. Clone the repository: `git clone https://github.com/Zubair7812/AI-Math-Tutor.git`
 2. Navigate to the project directory: `cd AI-Math-Tutor`
 3. Create a virtual environment: `python -m venv .venv` (or `python3 -m venv .venv`)
 4. Activate the virtual environment:
