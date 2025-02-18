@@ -19,57 +19,100 @@ model = genai.GenerativeModel('gemini-1.5-flash-latest')
 # Set up the Streamlit app
 st.set_page_config(page_title="Advanced AI Math Tutor", layout="wide", initial_sidebar_state="expanded")
 
-# Custom CSS for a modern dark theme
+# Custom CSS for a vibrant dark theme and restructured layout
 st.markdown("""
 <style>
 .stApp {
     background-color: #1a1a1a; /* Dark background */
     color: #e0e0e0; /* Light text color */
 }
+/* Sidebar styling */
+.stSidebar {
+    background-color: #282828; /* Darker sidebar */
+    padding: 20px;
+}
+.stSidebar .stRadio { /* Style radio buttons */
+    color: #a0a0a0;
+}
+.stSidebar .stSelectbox { /* Style select boxes */
+    background-color: #383838;
+}
+
+/* Main content area */
+.main-content {
+    padding: 20px;
+    margin-left: 250px; /* Adjust for sidebar width */
+}
+
+/* Buttons */
 .stButton>button {
-    background-color: #4285f4; /* Google Blue */
+    background-color: #673ab7; /* Deep purple */
     color: white;
-    border-radius: 8px; /* Rounded corners */
-    padding: 0.75rem 1.5rem; /* Increased padding */
-    font-size: 1.1rem; /* Slightly larger font */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow */
-    transition: background-color 0.3s ease; /* Smooth transition */
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s ease;
 }
 .stButton>button:hover {
-    background-color: #357ae8; /* Darker blue on hover */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25); /* More prominent shadow */
+    background-color: #512da8; /* Darker purple on hover */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.35);
 }
+
+/* Inputs, Text Areas, Select Boxes */
 .stTextInput>div>div>input, .stTextArea textarea, .stSelectbox>div>div>select {
-    background-color: #282828; /* Darker input background */
+    background-color: #383838; /* Darker input background */
     color: #e0e0e0;
     border-radius: 8px;
-    padding: 0.6rem;
-    border: 1px solid #444; /* Slightly lighter border */
-}
-.stSelectbox>div>div>div { /* Dropdown arrow color */
-    color: #e0e0e0;
+    border: 1px solid #555; /* Slightly lighter border */
 }
 
-.stMarkdown {
-    color: #e0e0e0;
+/* Headings */
+h1, h2, h3 {
+    color: #9575cd; /* Lighter purple for headings */
 }
-.stTabs>div>div>div { /* Tab styling */
+
+/* Code blocks */
+code {
     background-color: #333;
-    border: 1px solid #555;
-    border-radius: 8px 8px 0 0; /* Rounded top corners */
-    padding: 0.5rem 1rem;
-    color: #e0e0e0;
-}
-.stTabs>div>div>div.active { /* Active tab */
-    background-color: #4285f4; /* Active tab color */
-    border-color: #4285f4;
-    color: white;
-}
-.stSidebar {
-    background-color: #222;
+    color: #eee;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
 }
 
-/* Add more styles as needed */
+/* Tables */
+table {
+    background-color: #333;
+}
+th, td {
+    border: 1px solid #555;
+    padding: 8px;
+}
+
+/* Links */
+a {
+    color: #4fc3f7; /* Light blue for links */
+}
+
+/* Progress bar */
+.stProgress > div > div {
+    background-color: #673ab7 !important;
+}
+
+/* Alerts (Success, Info, Warning, Error) */
+.stAlert {
+    background-color: #424242;
+    color: #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+.stAlert-success { border-left: 5px solid #4caf50; } /* Green */
+.stAlert-info { border-left: 5px solid #2196f3; }    /* Blue */
+.stAlert-warning { border-left: 5px solid #ff9800; } /* Orange */
+.stAlert-error { border-left: 5px solid #f44336; }  /* Red */
+
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -90,6 +133,8 @@ c.execute("""
     )
 """)
 conn.commit()  # Commit the table creation
+
+st.markdown("<div class='main-content'>", unsafe_allow_html=True)
 
 # Now that the table definitely exists, you can safely alter it
 c.execute("PRAGMA table_info(users)")
@@ -714,10 +759,10 @@ if st.session_state.user is not None:
 
                 if st.session_state.show_solution: # Show solution only after checking
                     st.write(f"Solution: {st.session_state.trivia_question['correct_answer']}")
-
+    st.markdown("</div>", unsafe_allow_html=True)
     # Footer
     st.markdown("---")
-    st.markdown("Powered by AI | Advanced  Math Tutor v6.0")
+    st.markdown("Advanced Math Tutor")
 
 else:
     st.warning("Please log in or sign up to access the Math Tutor.")
