@@ -1,0 +1,12 @@
+streamlit
+google-generativeai
+random
+math
+plotly
+networkx
+numpy
+hashlib
+sqlite3
+json
+pandas
+python-dotenv 
