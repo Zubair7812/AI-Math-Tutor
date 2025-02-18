@@ -22,31 +22,54 @@ st.set_page_config(page_title="Advanced AI Math Tutor", layout="wide", initial_s
 # Custom CSS for a modern dark theme
 st.markdown("""
 <style>
-    .stApp {
-        background-color: #1E1E1E;
-        color: #FFFFFF;
-    }
-    .stButton>button {
-        background-color: #4CAF50;
-        color: white;
-        border-radius: 5px;
-    }
-    .stTextInput>div>div>input, .stTextArea textarea {
-        border-radius: 5px;
-        background-color: #2E2E2E;
-        color: #FFFFFF;
-    }
-    .stSelectbox>div>div>select {
-        background-color: #2E2E2E;
-        color: #FFFFFF;
-    }
-    .stTab {
-        background-color: #2E2E2E;
-        color: #FFFFFF;
-    }
-    .stMarkdown {
-        color: #FFFFFF;
-    }
+.stApp {
+    background-color: #1a1a1a; /* Dark background */
+    color: #e0e0e0; /* Light text color */
+}
+.stButton>button {
+    background-color: #4285f4; /* Google Blue */
+    color: white;
+    border-radius: 8px; /* Rounded corners */
+    padding: 0.75rem 1.5rem; /* Increased padding */
+    font-size: 1.1rem; /* Slightly larger font */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+.stButton>button:hover {
+    background-color: #357ae8; /* Darker blue on hover */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25); /* More prominent shadow */
+}
+.stTextInput>div>div>input, .stTextArea textarea, .stSelectbox>div>div>select {
+    background-color: #282828; /* Darker input background */
+    color: #e0e0e0;
+    border-radius: 8px;
+    padding: 0.6rem;
+    border: 1px solid #444; /* Slightly lighter border */
+}
+.stSelectbox>div>div>div { /* Dropdown arrow color */
+    color: #e0e0e0;
+}
+
+.stMarkdown {
+    color: #e0e0e0;
+}
+.stTabs>div>div>div { /* Tab styling */
+    background-color: #333;
+    border: 1px solid #555;
+    border-radius: 8px 8px 0 0; /* Rounded top corners */
+    padding: 0.5rem 1rem;
+    color: #e0e0e0;
+}
+.stTabs>div>div>div.active { /* Active tab */
+    background-color: #4285f4; /* Active tab color */
+    border-color: #4285f4;
+    color: white;
+}
+.stSidebar {
+    background-color: #222;
+}
+
+/* Add more styles as needed */
 </style>
 """, unsafe_allow_html=True)
 
@@ -280,39 +303,97 @@ if st.session_state.user is not None:
 
     elif page == "Quiz":
         if st.button("Generate Quiz"):
+            st.session_state.quiz_data = None  # Reset quiz data
             prompt = f"""Create a multiple choice quiz with 5 questions on {topic} suitable for a {skill_level.lower()} level student. 
             For each question, provide 4 options (A, B, C, D) and indicate the correct answer. 
             Format as follows:
-            Q1: [Question]
+
+            Q1: [Question 1]
             A. [Option A]
             B. [Option B]
             C. [Option C]
             D. [Option D]
             Correct: [Correct option letter]
-            Explanation: [Brief explanation of the correct answer]"""
+            Explanation: [Brief explanation of the correct answer]
+
+            Q2: [Question 2]
+            ... (and so on for 5 questions)
+
+            Do NOT include any extra newlines or blank lines at the beginning or end of your response.
+            """
+
             response = model.generate_content(prompt)
-            quiz = response.text.split('\n\n')
-            correct_answers = 0
-            for q in quiz:
-                parts = q.split('\n')
-                if len(parts) >= 7:
-                    st.subheader(parts[0])
+            quiz_text = response.text.strip()
+
+            try:
+                questions = quiz_text.split('\n\n')
+
+                if len(questions) != 5:
+                    raise ValueError(f"Expected 5 questions, got {len(questions)}. API response format is incorrect. Raw text: {quiz_text}")
+
+                st.session_state.quiz_data = []
+                for i, q in enumerate(questions):
+                    parts = q.split('\n')
+
+                    if len(parts) < 7:
+                        raise ValueError(f"Question {i+1} format is incorrect. Expected at least 7 lines, got {len(parts)}. Raw question: {q}")
+
+                    question_text = parts[0].split(': ')[1]
                     options = parts[1:5]
-                    correct = parts[5].split(': ')[1]
+                    correct_answer = parts[5].split(': ')[1].strip().upper()
                     explanation = parts[6].split(': ')[1]
-                    user_answer = st.radio("Select your answer:", options, key=parts[0])
-                    if st.button("Check", key=f"check_{parts[0]}"):
-                        if user_answer.startswith(correct):
-                            st.success("Correct!")
-                            correct_answers += 1
-                        else:
-                            st.error(f"Incorrect. The correct answer is {correct}.")
-                        st.write("Explanation:")
-                        render_math(explanation)
-            
-            score = (correct_answers / 5) * 100
+
+                    st.session_state.quiz_data.append({
+                        "question": question_text,
+                        "options": options,
+                        "correct_answer": correct_answer,
+                        "explanation": explanation,
+                        "user_answer": None,
+                        "show_result": False,
+                        "answered": False,  # Initialize answered flag
+                    })
+
+            except (IndexError, ValueError) as e:
+                st.error(f"Error generating or processing quiz: {e}")
+                st.write("Raw API Response (for debugging):")
+                st.write(quiz_text)
+            except Exception as e:
+                st.error(f"An unexpected error occurred: {e}")
+                st.write("Raw API Response (for debugging):")
+                st.write(quiz_text)
+
+        if "quiz_data" in st.session_state and st.session_state.quiz_data is not None:
+            if "correct_answers" not in st.session_state:
+                st.session_state.correct_answers = 0
+
+            for i, question_data in enumerate(st.session_state.quiz_data):
+                st.subheader(question_data["question"])
+                user_answer = st.radio("Select your answer:", question_data["options"], key=f"q{i}")
+
+                if st.button("Check", key=f"check_{i}"):
+                    question_data["user_answer"] = user_answer
+                    question_data["show_result"] = True
+
+                    if user_answer.startswith(question_data["correct_answer"]):
+                        st.success("Correct!")
+                        if not question_data["answered"]:
+                            st.session_state.correct_answers += 1
+                            question_data["answered"] = True
+                    else:
+                        st.error(f"Incorrect. The correct answer is {question_data['correct_answer']}.")
+                        question_data["answered"] = True
+
+                    st.write("Explanation:")
+                    render_math(question_data["explanation"])
+
+            score = (st.session_state.correct_answers / len(st.session_state.quiz_data)) * 100
             st.write(f"Your score: {score}%")
             update_progress(st.session_state.user, topic, score)
+
+            if st.button("Reset Quiz"):
+                del st.session_state.quiz_data
+                del st.session_state.correct_answers
+                st.rerun()
 
     elif page == "Interactive Whiteboard":
         drawing = st.text_area("Draw your mathematical expressions here (use ASCII art):")
