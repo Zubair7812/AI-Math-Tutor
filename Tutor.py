@@ -22,99 +22,128 @@ st.set_page_config(page_title="Advanced AI Math Tutor", layout="wide", initial_s
 # Custom CSS for a vibrant dark theme and restructured layout
 st.markdown("""
 <style>
+
 .stApp {
-    background-color: #1a1a1a; /* Dark background */
-    color: #e0e0e0; /* Light text color */
+    background: linear-gradient(135deg, #0a0a0a, #161616);
+    color: #e0e0e0;
+    font-family: 'Poppins', sans-serif;
 }
-/* Sidebar styling */
+
 .stSidebar {
-    background-color: #282828; /* Darker sidebar */
-    padding: 20px;
-}
-.stSidebar .stRadio { /* Style radio buttons */
-    color: #a0a0a0;
-}
-.stSidebar .stSelectbox { /* Style select boxes */
-    background-color: #383838;
-}
-
-/* Main content area */
-.main-content {
-    padding: 20px;
-    margin-left: 250px; /* Adjust for sidebar width */
-}
-
-/* Buttons */
-.stButton>button {
-    background-color: #673ab7; /* Deep purple */
+    background: rgba(20, 20, 20, 0.85);
     color: white;
-    border-radius: 8px;
-    padding: 0.75rem 1.5rem;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 5px rgba(255, 49, 49, 0.1);
+    border: 1px solid rgba(255, 49, 49, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.stSidebar .stRadio, .stSidebar .stSelectbox {
+    background: rgba(50, 50, 50, 0.2);
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 10px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.stSidebar .stRadio:hover, .stSidebar .stSelectbox:hover {
+    background: rgba(70, 70, 70, 0.3);
+}
+
+.stButton>button {
+    background: linear-gradient(90deg, #ff3131, #990000);
+    color: white;
+    border-radius: 10px;
     font-size: 1.1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    transition: background-color 0.3s ease;
+    padding: 10px 16px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 0 4px rgba(255, 49, 49, 0.3);
+    border: none;
 }
+
 .stButton>button:hover {
-    background-color: #512da8; /* Darker purple on hover */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.35);
+    background: linear-gradient(90deg, #990000, #ff3131);
+    box-shadow: 0 0 6px rgba(255, 49, 49, 0.4);
 }
 
-/* Inputs, Text Areas, Select Boxes */
 .stTextInput>div>div>input, .stTextArea textarea, .stSelectbox>div>div>select {
-    background-color: #383838; /* Darker input background */
+    background: rgba(40, 40, 40, 0.9);
     color: #e0e0e0;
     border-radius: 8px;
-    border: 1px solid #555; /* Slightly lighter border */
+    padding: 10px;
+    border: 1px solid #ff3131;
+    transition: all 0.2s ease;
 }
 
-/* Headings */
+.stTextInput>div>div>input:focus, .stTextArea textarea:focus, .stSelectbox>div>div>select:focus {
+    border-color: #990000;
+    box-shadow: 0 0 4px rgba(153, 0, 0, 0.4);
+}
+
 h1, h2, h3 {
-    color: #9575cd; /* Lighter purple for headings */
+    font-family: 'Poppins', sans-serif;
+    color: #ff3131;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    text-shadow: 0 0 5px rgba(255, 49, 49, 0.3);
 }
 
-/* Code blocks */
 code {
-    background-color: #333;
-    color: #eee;
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
+    background: #1a1a1a;
+    color: #ff3131;
+    padding: 6px 10px;
+    border-radius: 6px;
+    box-shadow: 0 0 3px rgba(255, 49, 49, 0.2);
 }
 
-/* Tables */
-table {
-    background-color: #333;
-}
-th, td {
-    border: 1px solid #555;
-    padding: 8px;
+.custom-card {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 0 5px rgba(255, 49, 49, 0.1);
+    transition: transform 0.2s ease-in-out;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 49, 49, 0.1);
 }
 
-/* Links */
+.custom-card:hover {
+    transform: scale(1.02);
+}
+
 a {
-    color: #4fc3f7; /* Light blue for links */
+    color: #ff3131;
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.3s ease;
 }
 
-/* Progress bar */
-.stProgress > div > div {
-    background-color: #673ab7 !important;
+a:hover {
+    color: #990000;
 }
 
-/* Alerts (Success, Info, Warning, Error) */
-.stAlert {
-    background-color: #424242;
-    color: #e0e0e0;
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #ff3131, #990000);
     border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
+    box-shadow: 0 0 5px rgba(255, 49, 49, 0.3);
 }
-.stAlert-success { border-left: 5px solid #4caf50; } /* Green */
-.stAlert-info { border-left: 5px solid #2196f3; }    /* Blue */
-.stAlert-warning { border-left: 5px solid #ff9800; } /* Orange */
-.stAlert-error { border-left: 5px solid #f44336; }  /* Red */
 
-
+.stFooter {
+    background: rgba(20, 20, 20, 0.85);
+    padding: 15px;
+    text-align: center;
+    color: #e0e0e0;
+    border-radius: 10px;
+    font-size: 0.9rem;
+}
 </style>
 """, unsafe_allow_html=True)
+
 
 # Helper function to render mathematical expressions
 def render_math(text):
