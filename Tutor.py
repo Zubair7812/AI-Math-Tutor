@@ -399,98 +399,116 @@ if st.session_state.get("user", None) is not None:
                     st.warning("Please enter a function to visualize.")
 
         elif option == "Quiz":
+            if "quiz_data" not in st.session_state:
+                st.session_state.quiz_data = None  # Initialize quiz storage
+
             if st.button("Generate Quiz"):
-                st.session_state.quiz_data = None  # Reset quiz data
-                prompt = f"""Create a multiple choice quiz with 5 questions on {topic} suitable for a {skill_level.lower()} level student. 
-                For each question, provide 4 options (A, B, C, D) and indicate the correct answer. 
-                Format as follows:
+                if st.session_state.quiz_data is None:  # Generate new quiz only if there's no existing quiz
+                    prompt = f"""
+                    Create a multiple-choice quiz with 5 unique questions on {topic}, suitable for a {skill_level.lower()} level student.
+                    Each question must have:
+                    - A unique math-related question
+                    - 4 answer choices (A, B, C, D)
+                    - The correct answer
+                    - A brief explanation of the correct answer
 
-                Q1: [Question 1]
-                A. [Option A]
-                B. [Option B]
-                C. [Option C]
-                D. [Option D]
-                Correct: [Correct option letter]
-                Explanation: [Brief explanation of the correct answer]
+                    Format:
+                    Q1: [Question 1]
+                    A. [Option A]
+                    B. [Option B]
+                    C. [Option C]
+                    D. [Option D]
+                    Correct: [Correct option letter]
+                    Explanation: [Brief explanation]
 
-                Q2: [Question 2]
-                ... (and so on for 5 questions)
+                    Do NOT include any extra newlines at the beginning or end.
+                    """
+                    response = model.generate_content(prompt)
+                    quiz_text = response.text.strip()
 
-                Do NOT include any extra newlines or blank lines at the beginning or end of your response.
-                """
+                    try:
+                        questions = quiz_text.split('\n\n')
+                        if len(questions) != 5:
+                            raise ValueError("Expected 5 questions, API response format is incorrect.")
 
-                response = model.generate_content(prompt)
-                quiz_text = response.text.strip()
+                        st.session_state.quiz_data = []
+                        for q in questions:
+                            parts = q.split('\n')
+                            if len(parts) < 7:
+                                raise ValueError("Incorrect question format. Expected at least 7 lines.")
 
-                try:
-                    questions = quiz_text.split('\n\n')
+                            question_text = parts[0].split(': ')[1]
+                            options = parts[1:5]
+                            correct_answer = parts[5].split(': ')[1].strip().upper()
+                            explanation = parts[6].split(': ')[1]
 
-                    if len(questions) != 5:
-                        raise ValueError(f"Expected 5 questions, got {len(questions)}. API response format is incorrect. Raw text: {quiz_text}")
+                            st.session_state.quiz_data.append({
+                                "question": question_text,
+                                "options": options,
+                                "correct_answer": correct_answer,
+                                "explanation": explanation,
+                                "user_answer": None,
+                                "answered": False,
+                            })
 
-                    st.session_state.quiz_data = []
-                    for i, q in enumerate(questions):
-                        parts = q.split('\n')
+                    except (IndexError, ValueError) as e:
+                        st.error(f"Error generating quiz: {e}")
+                        st.write("Raw API Response (for debugging):")
+                        st.write(quiz_text)
+                    except Exception as e:
+                        st.error(f"Unexpected error: {e}")
+                        st.write("Raw API Response:")
+                        st.write(quiz_text)
 
-                        if len(parts) < 7:
-                            raise ValueError(f"Question {i+1} format is incorrect. Expected at least 7 lines, got {len(parts)}. Raw question: {q}")
-
-                        question_text = parts[0].split(': ')[1]
-                        options = parts[1:5]
-                        correct_answer = parts[5].split(': ')[1].strip().upper()
-                        explanation = parts[6].split(': ')[1]
-
-                        st.session_state.quiz_data.append({
-                            "question": question_text,
-                            "options": options,
-                            "correct_answer": correct_answer,
-                            "explanation": explanation,
-                            "user_answer": None,
-                            "show_result": False,
-                            "answered": False,  # Initialize answered flag
-                        })
-
-                except (IndexError, ValueError) as e:
-                    st.error(f"Error generating or processing quiz: {e}")
-                    st.write("Raw API Response (for debugging):")
-                    st.write(quiz_text)
-                except Exception as e:
-                    st.error(f"An unexpected error occurred: {e}")
-                    st.write("Raw API Response (for debugging):")
-                    st.write(quiz_text)
-
-            if "quiz_data" in st.session_state and st.session_state.quiz_data is not None:
+            # Display quiz if available
+            if st.session_state.quiz_data:
                 if "correct_answers" not in st.session_state:
                     st.session_state.correct_answers = 0
 
+                st.subheader("Quiz Time! Select your answers:")
+                
                 for i, question_data in enumerate(st.session_state.quiz_data):
-                    st.subheader(question_data["question"])
-                    user_answer = st.radio("Select your answer:", question_data["options"], key=f"q{i}")
+                    st.write(f"**Q{i+1}: {question_data['question']}**")
+                    
+                    # Use session_state to store user answers
+                    user_answer = st.radio(
+                        "Select your answer:",
+                        question_data["options"],
+                        key=f"q{i}",
+                        index=None  # Prevents auto-selection
+                    )
 
-                    if st.button("Check", key=f"check_{i}"):
-                        question_data["user_answer"] = user_answer
-                        question_data["show_result"] = True
+                    # Store user selection
+                    st.session_state.quiz_data[i]["user_answer"] = user_answer
 
-                        if user_answer.startswith(question_data["correct_answer"]):
-                            st.success("Correct!")
-                            if not question_data["answered"]:
-                                st.session_state.correct_answers += 1
-                                question_data["answered"] = True
-                        else:
-                            st.error(f"Incorrect. The correct answer is {question_data['correct_answer']}.")
-                            question_data["answered"] = True
+                if st.button("Submit Quiz"):
+                    correct_count = 0
+                    
+                    for i, question_data in enumerate(st.session_state.quiz_data):
+                        if question_data["user_answer"]:
+                            if question_data["user_answer"].startswith(question_data["correct_answer"]):
+                                st.success(f"Q{i+1}: Correct!")
+                                correct_count += 1
+                            else:
+                                st.error(f"Q{i+1}: Incorrect. The correct answer is {question_data['correct_answer']}.")
+                            st.write(f"**Explanation:** {question_data['explanation']}")
 
-                        st.write("Explanation:")
-                        render_math(question_data["explanation"])
+                    # Calculate score
+                    score = (correct_count / len(st.session_state.quiz_data)) * 100
+                    st.write(f"**Your Score: {score}%**")
+                    update_progress(st.session_state.user, topic, score)
 
-                score = (st.session_state.correct_answers / len(st.session_state.quiz_data)) * 100
-                st.write(f"Your score: {score}%")
-                update_progress(st.session_state.user, topic, score)
+                if st.button("Retake Quiz"):
+                    for q in st.session_state.quiz_data:
+                        q["user_answer"] = None
+                    st.session_state.correct_answers = 0
+                    st.rerun()
 
-                if st.button("Reset Quiz"):
+                if st.button("Generate New Quiz"):
                     del st.session_state.quiz_data
                     del st.session_state.correct_answers
                     st.rerun()
+
         
         elif option == "Interactive Whiteboard":
             drawing = st.text_area("Draw your mathematical expressions here (use ASCII art):")
