@@ -21,7 +21,7 @@ model = genai.GenerativeModel('gemini-1.5-flash-latest')
 # Set up the Streamlit app
 st.set_page_config(page_title="Advanced AI Math Tutor", layout="wide", initial_sidebar_state="expanded")
 
-# Custom CSS for a vibrant dark theme and restructured layout
+# CSS for a vibrant dark theme
 st.markdown("""
 <style>
 
@@ -163,7 +163,7 @@ def render_math(text):
 conn = sqlite3.connect('math_tutor.db')
 c = conn.cursor()
 
-# Create the users table if it doesn't exist.  This is the crucial change.
+# Create the users table if it doesn't exist.
 c.execute("""
     CREATE TABLE IF NOT EXISTS users (
         username TEXT PRIMARY KEY,
@@ -173,7 +173,6 @@ c.execute("""
 """)
 conn.commit()  # Commit the table creation
 
-# Now that the table definitely exists, you can safely alter it
 c.execute("PRAGMA table_info(users)")
 columns = [column[1] for column in c.fetchall()]
 if 'progress' not in columns:
