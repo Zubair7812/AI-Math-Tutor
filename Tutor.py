@@ -11,6 +11,7 @@ import sqlite3
 import json
 from datetime import datetime
 import pandas as pd
+import random
 
 # Configure the Google Gemini API
 genai.configure(api_key="AIzaSyBJFPgfKibzvITEATEwXtzNPMO--chg5GU")
@@ -140,6 +141,14 @@ a:hover {
     color: #e0e0e0;
     border-radius: 10px;
     font-size: 0.9rem;
+}
+.stSidebar label[data-testid="stRadioLabel"] {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    width: 100%;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -509,7 +518,6 @@ if st.session_state.get("user", None) is not None:
                     del st.session_state.correct_answers
                     st.rerun()
 
-        
         elif option == "Interactive Whiteboard":
             drawing = st.text_area("Draw your mathematical expressions here (use ASCII art):")
             if st.button("Interpret Drawing"):
@@ -641,111 +649,111 @@ if st.session_state.get("user", None) is not None:
                 st.session_state.messages.append({"role": "assistant", "content": response.text})
 
         elif option == "Math Game Center":
-            game_type = st.selectbox("Choose a game:", ["Number Guessing", "Math Trivia"])
-            
-            if game_type == "Number Guessing":
-                st.subheader("Number Guessing Game")
+                    game_type = st.selectbox("Choose a game:", ["Number Guessing", "Math Trivia"])
+                    
+                    if game_type == "Number Guessing":
+                        st.subheader("Number Guessing Game")
 
-                if 'number' not in st.session_state:
-                    st.session_state.number = random.randint(1, 100)
-                    st.session_state.guesses = 0
-                    st.session_state.lower_bound = 1
-                    st.session_state.upper_bound = 100
-                    st.session_state.hint_range = 10
-                    st.session_state.max_guesses = 5  # Set maximum guesses
+                        if 'number' not in st.session_state:
+                            st.session_state.number = random.randint(1, 100)
+                            st.session_state.guesses = 0
+                            st.session_state.lower_bound = 1
+                            st.session_state.upper_bound = 100
+                            st.session_state.hint_range = 10
+                            st.session_state.max_guesses = 5  # Set maximum guesses
 
-                guess = st.number_input(
-                    f"Guess a number between {st.session_state.lower_bound} and {st.session_state.upper_bound}:",
-                    min_value=st.session_state.lower_bound,
-                    max_value=st.session_state.upper_bound,
-                )
+                        guess = st.number_input(
+                            f"Guess a number between {st.session_state.lower_bound} and {st.session_state.upper_bound}:",
+                            min_value=st.session_state.lower_bound,
+                            max_value=st.session_state.upper_bound,
+                        )
 
-                if st.button("Submit Guess"):
-                    st.session_state.guesses += 1
+                        if st.button("Submit Guess"):
+                            st.session_state.guesses += 1
 
-                    if guess == st.session_state.number:
-                        st.success(f"Congratulations! You guessed the number in {st.session_state.guesses} tries.")
-                        if st.button("Play Again"):
-                            del st.session_state.number
-                            del st.session_state.guesses
-                            del st.session_state.lower_bound
-                            del st.session_state.upper_bound
-                            del st.session_state.hint_range
-                            del st.session_state.max_guesses  #Reset max guesses
-                            st.rerun()
+                            if guess == st.session_state.number:
+                                st.success(f"Congratulations! You guessed the number in {st.session_state.guesses} tries.")
+                                if st.button("Play Again"):
+                                    del st.session_state.number
+                                    del st.session_state.guesses
+                                    del st.session_state.lower_bound
+                                    del st.session_state.upper_bound
+                                    del st.session_state.hint_range
+                                    del st.session_state.max_guesses  #Reset max guesses
+                                    st.rerun()
 
-                    elif st.session_state.guesses >= st.session_state.max_guesses:  # Check for max guesses
-                        st.error(f"You've reached the maximum number of guesses ({st.session_state.max_guesses}). The number was {st.session_state.number}.")
-                        if st.button("Play Again"):  # Offer "Play Again"
-                            del st.session_state.number
-                            del st.session_state.guesses
-                            del st.session_state.lower_bound
-                            del st.session_state.upper_bound
-                            del st.session_state.hint_range
-                            del st.session_state.max_guesses #Reset max guesses
-                            st.rerun()
+                            elif st.session_state.guesses >= st.session_state.max_guesses:  # Check for max guesses
+                                st.error(f"You've reached the maximum number of guesses ({st.session_state.max_guesses}). The number was {st.session_state.number}.")
+                                if st.button("Play Again"):  # Offer "Play Again"
+                                    del st.session_state.number
+                                    del st.session_state.guesses
+                                    del st.session_state.lower_bound
+                                    del st.session_state.upper_bound
+                                    del st.session_state.hint_range
+                                    del st.session_state.max_guesses #Reset max guesses
+                                    st.rerun()
 
-                    else:  # Handle incorrect guesses (same logic as before)
-                        if guess < st.session_state.number:
-                            new_lower = max(st.session_state.lower_bound, guess + 1)
-                            new_upper = min(st.session_state.upper_bound, guess + st.session_state.hint_range)
-                            st.warning(f"Too low! Try a number between {new_lower} and {new_upper}.")
-                            st.session_state.lower_bound = new_lower
-                            st.session_state.upper_bound = new_upper
+                            else:  # Handle incorrect guesses (same logic as before)
+                                if guess < st.session_state.number:
+                                    new_lower = max(st.session_state.lower_bound, guess + 1)
+                                    new_upper = min(st.session_state.upper_bound, guess + st.session_state.hint_range)
+                                    st.warning(f"Too low! Try a number between {new_lower} and {new_upper}.")
+                                    st.session_state.lower_bound = new_lower
+                                    st.session_state.upper_bound = new_upper
 
-                        else:  # Too high
-                            new_lower = max(st.session_state.lower_bound, guess - st.session_state.hint_range)
-                            new_upper = min(st.session_state.upper_bound, guess - 1)
-                            st.warning(f"Too high! Try a number between {new_lower} and {new_upper}.")
-                            st.session_state.lower_bound = new_lower
-                            st.session_state.upper_bound = new_upper
+                                else:  # Too high
+                                    new_lower = max(st.session_state.lower_bound, guess - st.session_state.hint_range)
+                                    new_upper = min(st.session_state.upper_bound, guess - 1)
+                                    st.warning(f"Too high! Try a number between {new_lower} and {new_upper}.")
+                                    st.session_state.lower_bound = new_lower
+                                    st.session_state.upper_bound = new_upper
 
-                    st.write(f"Guesses so far: {st.session_state.guesses}")
-            
-            elif game_type == "Math Trivia":
-                st.subheader("Math Trivia")
+                            st.write(f"Guesses so far: {st.session_state.guesses}")
+                    
+                    elif game_type == "Math Trivia":
+                        st.subheader("Math Trivia")
 
-                if "trivia_question" not in st.session_state or st.button("Generate Trivia Question"):  # Check if trivia exists or the button is clicked
-                    prompt = f"Generate a {skill_level} level math trivia question related to {topic} with 4 multiple choice answers. Indicate the correct answer. Format the response STRICTLY as follows:\n\nQuestion: [The question]\nA: [Option A]\nB: [Option B]\nC: [Option C]\nD: [Option D]\nCorrect: [Correct option letter]"
+                        if "trivia_question" not in st.session_state or st.button("Generate Trivia Question"):  # Check if trivia exists or the button is clicked
+                            prompt = f"Generate a {skill_level} level math trivia question related to {topic} with 4 multiple choice answers. Indicate the correct answer. Format the response STRICTLY as follows:\n\nQuestion: [The question]\nA: [Option A]\nB: [Option B]\nC: [Option C]\nD: [Option D]\nCorrect: [Correct option letter]"
 
-                    response = model.generate_content(prompt)
+                            response = model.generate_content(prompt)
 
-                    try:
-                        lines = response.text.split('\n')
-                        if len(lines) < 6:
-                            raise ValueError("API response format is incorrect. Expected at least 6 lines.")
+                            try:
+                                lines = response.text.split('\n')
+                                if len(lines) < 6:
+                                    raise ValueError("API response format is incorrect. Expected at least 6 lines.")
 
-                        st.session_state.trivia_question = {  # Store the trivia in session state
-                            "question": lines[0].split(': ')[1],
-                            "options": lines[1:5],
-                            "correct_answer": lines[5].split(': ')[1].strip()
-                        }
-                        st.session_state.show_solution = False # Initialize show_solution
-
-
-                    except (IndexError, ValueError) as e:
-                        st.error(f"Error generating trivia question: {e}")
-                        st.write("Raw API Response (for debugging):")
-                        st.write(response.text)
-                    except Exception as e:
-                        st.error(f"An unexpected error occurred: {e}")
-                        st.write("Raw API Response (for debugging):")
-                        st.write(response.text)
+                                st.session_state.trivia_question = {  # Store the trivia in session state
+                                    "question": lines[0].split(': ')[1],
+                                    "options": lines[1:5],
+                                    "correct_answer": lines[5].split(': ')[1].strip()
+                                }
+                                st.session_state.show_solution = False # Initialize show_solution
 
 
-                if "trivia_question" in st.session_state:  # Display the trivia if it exists in session state
-                    st.write(st.session_state.trivia_question["question"])
-                    user_answer = st.radio("Choose your answer:", st.session_state.trivia_question["options"])
+                            except (IndexError, ValueError) as e:
+                                st.error(f"Error generating trivia question: {e}")
+                                st.write("Raw API Response (for debugging):")
+                                st.write(response.text)
+                            except Exception as e:
+                                st.error(f"An unexpected error occurred: {e}")
+                                st.write("Raw API Response (for debugging):")
+                                st.write(response.text)
 
-                    if st.button("Check Answer"):
-                        st.session_state.show_solution = True # Set show_solution to True
-                        if user_answer.startswith(st.session_state.trivia_question["correct_answer"]):
-                            st.success("Correct!")
-                        else:
-                            st.error(f"Incorrect. The correct answer is {st.session_state.trivia_question['correct_answer']}.")
 
-                    if st.session_state.show_solution: # Show solution only after checking
-                        st.write(f"Solution: {st.session_state.trivia_question['correct_answer']}")
+                        if "trivia_question" in st.session_state:  # Display the trivia if it exists in session state
+                            st.write(st.session_state.trivia_question["question"])
+                            user_answer = st.radio("Choose your answer:", st.session_state.trivia_question["options"])
+
+                            if st.button("Check Answer"):
+                                st.session_state.show_solution = True # Set show_solution to True
+                                if user_answer.startswith(st.session_state.trivia_question["correct_answer"]):
+                                    st.success("Correct!")
+                                else:
+                                    st.error(f"Incorrect. The correct answer is {st.session_state.trivia_question['correct_answer']}.")
+
+                            if st.session_state.show_solution: # Show solution only after checking
+                                st.write(f"Solution: {st.session_state.trivia_question['correct_answer']}")
 
         elif option == "Study Plan Generator":
             study_goal = st.text_input("Enter your study goal:")
