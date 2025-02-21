@@ -15,7 +15,7 @@ import random
 import re
 
 # Configure the Google Gemini API
-genai.configure(api_key="AIzaSyBJFPgfKibzvITEATEwXtzNPMO--chg5GU")
+genai.configure(api_key="YOUR GEMINI API KEY")
 model = genai.GenerativeModel('gemini-1.5-flash-latest')
 
 # Set up the Streamlit app
