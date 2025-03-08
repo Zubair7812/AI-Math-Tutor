@@ -14,6 +14,40 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import io
 import random
+import pytesseract
+from PIL import Image
+
+
+pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR\Tesseract.exe'
+from PIL import Image, ImageOps, ImageEnhance
+
+def extract_text_from_image(image_file):
+    try:
+        # Step 1: Open the image using PIL
+        image = Image.open(image_file)
+
+        # Step 2: Preprocessing for better OCR accuracy
+        # Convert to grayscale
+        image = image.convert('L')  # Convert to grayscale
+
+        # Increase contrast
+        enhancer = ImageEnhance.Contrast(image)
+        image = enhancer.enhance(2.0)  # Increase contrast by a factor of 2
+
+        # Binarization (thresholding)
+        image = image.point(lambda x: 0 if x < 128 else 255, '1')  # Apply thresholding
+
+        # Resize the image for better resolution
+        image = image.resize((image.width * 2, image.height * 2), Image.Resampling.LANCZOS)
+
+        # Step 3: Use Tesseract to extract text
+        extracted_text = pytesseract.image_to_string(image, lang='eng')
+
+        # Step 4: Return the extracted text
+        return extracted_text.strip()  # Remove leading/trailing whitespace
+    except Exception as e:
+        st.error(f"Error extracting text: {e}")
+        return None
 
 # Configure the Google Gemini API
 genai.configure(api_key="AIzaSyBkaIzPFM_uJ-JfLj7AFbik9ml2upq2qy4")
@@ -290,7 +324,7 @@ if st.session_state.get("user", None) is not None:
     menu_choice = st.sidebar.radio("Select a Feature", ["Basic Features", "Advanced Features","Study Plan Generator","Performance Analytics"], key="menu_type")
     if menu_choice=="Basic Features":
         # Main Navigation
-        main_options = ["Problem Solver", "Practice Questions", "Concept Explorer", "Formula Generator", "Quiz"]
+        main_options = ["Problem Solver", "Handwritten Problem Solver", "Practice Questions", "Concept Explorer", "Formula Generator", "Quiz"]
         selected_main = st.sidebar.radio("Basic Features", main_options,key="main_menu_radio")
         if selected_main and selected_main != st.session_state.selected_menu:
             st.session_state.selected_menu = selected_main
@@ -835,6 +869,20 @@ if st.session_state.get("user", None) is not None:
                 else:
                     st.write("Not enough data to determine strengths and areas for improvement.")
 
+        elif option == "Handwritten Problem Solver":
+            uploaded_file = st.file_uploader("Upload an image of a handwritten math problem", type=["jpg", "jpeg", "png"])
+            if uploaded_file is not None:
+                extracted_text = extract_text_from_image(uploaded_file)
+                st.write("Extracted Text:")
+                st.write(extracted_text if extracted_text else "No text could be extracted from the image.")
+                
+                if extracted_text:
+                    prompt = f"""Solve this {skill_level.lower()} level {topic.lower()} problem step by step, providing detailed explanations for each step. Problem: {extracted_text}"""
+                    response = model.generate_content(prompt)
+                    
+                    st.write("Step-by-Step Solution:")
+                    render_math(response.text)
+                    update_progress(st.session_state.user, topic)
 
     # Main content based on selected page
     st.markdown("<div class='main-content'>", unsafe_allow_html=True)
