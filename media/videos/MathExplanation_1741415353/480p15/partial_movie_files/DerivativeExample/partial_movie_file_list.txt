@@ -1,0 +1,13 @@
+# This file is used internally by FFMPEG.
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/MathExplanation_1741415353/480p15/partial_movie_files/DerivativeExample/4068429369_1253679837_223132457.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/MathExplanation_1741415353/480p15/partial_movie_files/DerivativeExample/895926960_4217992463_1039878720.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/MathExplanation_1741415353/480p15/partial_movie_files/DerivativeExample/895926960_3574314672_3745459786.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/MathExplanation_1741415353/480p15/partial_movie_files/DerivativeExample/895926960_4217992463_31858937.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/MathExplanation_1741415353/480p15/partial_movie_files/DerivativeExample/895926960_2590241394_456161044.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/MathExplanation_1741415353/480p15/partial_movie_files/DerivativeExample/895926960_4217992463_4058026812.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/MathExplanation_1741415353/480p15/partial_movie_files/DerivativeExample/895926960_1086608958_237243842.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/MathExplanation_1741415353/480p15/partial_movie_files/DerivativeExample/895926960_4217992463_3410850865.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/MathExplanation_1741415353/480p15/partial_movie_files/DerivativeExample/895926960_2731517405_540300437.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/MathExplanation_1741415353/480p15/partial_movie_files/DerivativeExample/895926960_2844360058_3639672623.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/MathExplanation_1741415353/480p15/partial_movie_files/DerivativeExample/895926960_3723048137_348043258.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/MathExplanation_1741415353/480p15/partial_movie_files/DerivativeExample/895926960_2552855209_3343517782.mp4'

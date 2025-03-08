@@ -1,0 +1,12 @@
+# This file is used internally by FFMPEG.
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/check/480p15/partial_movie_files/PythagorasTheorem/1185818338_2035358227_223132457.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/check/480p15/partial_movie_files/PythagorasTheorem/624642324_4217992463_177217067.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/check/480p15/partial_movie_files/PythagorasTheorem/624642324_4069312444_915983091.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/check/480p15/partial_movie_files/PythagorasTheorem/624642324_2844360058_4188475090.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/check/480p15/partial_movie_files/PythagorasTheorem/624642324_1212756013_67179391.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/check/480p15/partial_movie_files/PythagorasTheorem/624642324_2552855209_855237522.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/check/480p15/partial_movie_files/PythagorasTheorem/624642324_2271109995_627519405.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/check/480p15/partial_movie_files/PythagorasTheorem/624642324_4217992463_1554261985.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/check/480p15/partial_movie_files/PythagorasTheorem/624642324_2750254181_77385305.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/check/480p15/partial_movie_files/PythagorasTheorem/624642324_2844360058_838856709.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/check/480p15/partial_movie_files/PythagorasTheorem/624642324_3136721406_931251035.mp4'

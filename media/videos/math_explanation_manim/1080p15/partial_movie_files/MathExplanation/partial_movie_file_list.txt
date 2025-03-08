@@ -1,0 +1,9 @@
+# This file is used internally by FFMPEG.
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/math_explanation_manim/1080p15/partial_movie_files/MathExplanation/1264212857_2291841833_223132457.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/math_explanation_manim/1080p15/partial_movie_files/MathExplanation/2725161996_4217992463_620589722.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/math_explanation_manim/1080p15/partial_movie_files/MathExplanation/2725161996_1383586311_88707350.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/math_explanation_manim/1080p15/partial_movie_files/MathExplanation/2725161996_2844360058_57989143.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/math_explanation_manim/1080p15/partial_movie_files/MathExplanation/2725161996_1326344192_4111226163.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/math_explanation_manim/1080p15/partial_movie_files/MathExplanation/2725161996_2844360058_1705732784.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/math_explanation_manim/1080p15/partial_movie_files/MathExplanation/2725161996_849762834_3278172545.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/math_explanation_manim/1080p15/partial_movie_files/MathExplanation/2725161996_2844360058_2520404247.mp4'

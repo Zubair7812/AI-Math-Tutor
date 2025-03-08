@@ -13,11 +13,17 @@ from datetime import datetime
 import pandas as pd
 import random
 import re
+import os
+import subprocess
+from manim import *
+from elevenlabs import generate, set_api_key
+from moviepy.editor import VideoFileClip, AudioFileClip
+from gtts import gTTS
 
 # Configure the Google Gemini API
-genai.configure(api_key="YOUR GEMINI API KEY")
+genai.configure(api_key="")
 model = genai.GenerativeModel('gemini-1.5-flash-latest')
-
+set_api_key("")
 # Set up the Streamlit app
 st.set_page_config(page_title="Advanced AI Math Tutor", layout="wide", initial_sidebar_state="expanded")
 
@@ -154,6 +160,91 @@ a:hover {
 </style>
 """, unsafe_allow_html=True)
 
+import os
+import time
+import subprocess
+
+import time
+import subprocess
+import os
+from moviepy.editor import VideoFileClip, AudioFileClip
+
+import os
+import subprocess
+import time
+def generate_manim_video(manim_code, video_class_name="MathExplanation"):
+    """
+    Generates a Manim video from a dynamically created script.
+    Ensures unique filenames to prevent caching issues.
+    """
+    timestamp = int(time.time())
+    script_path = f"{video_class_name}_{timestamp}.py"
+
+    # Save the Manim script to a file
+    with open(script_path, "w", encoding="utf-8") as f:
+        f.write(manim_code)
+
+    # Clear Manim cache before running (optional but ensures a fresh video)
+    subprocess.run(["manim", "--clear-cache"])
+
+    # Run Manim to generate the video
+    subprocess.run(["manim", "-ql", script_path, video_class_name])
+
+    # Manim saves the video in a structured directory format
+    video_dir = f"media/videos/{video_class_name}_{timestamp}/480p15"
+
+    if not os.path.exists(video_dir):
+        print(f"⚠️ Video directory does not exist: {video_dir}")
+        return None
+
+    # Get the most recent video file
+    video_files = [f for f in os.listdir(video_dir) if f.endswith(".mp4")]
+    if not video_files:
+        print(f"⚠️ No MP4 files found in: {video_dir}")
+        return None
+
+    # Sort files by modification time and pick the latest one
+    video_files.sort(key=lambda x: os.path.getmtime(os.path.join(video_dir, x)), reverse=True)
+    latest_video = video_files[0]
+
+    video_path = os.path.join(video_dir, latest_video)
+    print(f"✅ New video generated successfully: {video_path}")
+
+    return video_path
+
+def generate_audio(text, audio_path="explanation_audio.mp3"):
+    audio_data = generate("ok", voice="Sarah")
+    with open(audio_path, "wb") as f:
+        f.write(audio_data)
+    return audio_path
+
+def combine_video_audio(video_path, audio_path, output_video="final_explanation.mp4"):
+    """
+    Combines a generated video with an audio explanation.
+    """
+    print(f"📂 Checking paths:\nVideo: {video_path}\nAudio: {audio_path}")
+    if not os.path.exists(video_path):
+        raise FileNotFoundError(f"⚠️ Video file not found: {video_path}")
+
+    if not os.path.exists(audio_path):
+        raise FileNotFoundError(f"⚠️ Audio file not found: {audio_path}")
+
+    video = VideoFileClip(video_path)
+    audio = AudioFileClip(audio_path)
+
+    # Ensure audio length matches video length
+    audio = audio.subclip(0, min(video.duration, audio.duration))
+
+    final_video = video.set_audio(audio)
+    final_video.write_videofile(output_video, codec="libx264")
+
+    if os.path.exists(output_video):
+        print(f"✅ Final video generated successfully: {output_video}")
+    else:
+        print("⚠️ Error: Final video was not created!")
+
+    return output_video
+
 
 # Helper function to render mathematical expressions
 def render_math(text):
@@ -264,7 +355,7 @@ if st.session_state.get("user", None) is not None:
 
     elif menu_choice=="Advanced Features":
         # Advanced Features
-        advanced_options = ["Interactive Whiteboard", "Virtual Math Manipulatives", "Historical Math Context", "Real-World Applications", "Customizable Practice Sets", "AI Tutor Chat", "Math Game Center"]
+        advanced_options = ["Video Recommendation", "Virtual Math Manipulatives", "Historical Math Context", "Real-World Applications", "Customizable Practice Sets", "AI Tutor Chat", "Math Game Center"]
         selected_advanced = st.sidebar.radio("Advanced Features", advanced_options,key="advanced_menu_radio")   
         if selected_advanced and selected_advanced != st.session_state.selected_menu:
             st.session_state.selected_menu = selected_advanced
@@ -304,17 +395,102 @@ if st.session_state.get("user", None) is not None:
         st.rerun()
         
     def execute_function(option):
+        if "solution_text" not in st.session_state:
+            st.session_state.solution_text = None
+        if "manim_script" not in st.session_state:
+            st.session_state.manim_script = None
+        if "audio_script" not in st.session_state:
+            st.session_state.audio_script = None
+        if "video_generated" not in st.session_state:
+            st.session_state.video_generated = False
+
         if option == "Problem Solver":
             problem = st.text_area("Enter your math problem:")
+
+            # Solve step-by-step button
             if st.button("Solve Step-by-Step"):
                 if problem:
-                    prompt = f"""Solve this {skill_level.lower()} level {topic.lower()} problem step by step, providing detailed explanations for each step."""
+                    prompt = f"Solve this problem step by step with detailed explanations in simple manner."
                     response = model.generate_content(prompt + problem)
-                    render_math(response.text)
-                    update_progress(st.session_state.user, topic)
+                    st.session_state.solution_text = response.text
+                    st.session_state.video_generated = False  
+
+                    prompt_manim = f"""
+                    Generate a Manim animation script that visually explains the given mathematical problem step by step.
+                    The animation should include text explanations, dynamic equation transformations, relevant geometrical 
+                    or graphical representations (if applicable), and smooth transitions using animations like FadeIn, Transform, 
+                    and DrawBorderThenFill. Ensure the animations maintain engagement and clarity. Align the animation in proper manner
+                    and one important main thing is I only want the code alone not any strings another than the code because the manim script give syntactical error so give only code alone compulsorily and also exclude (```python and ''') in the script.
+                    One important main thing is you have to import all the necessary packages and make sure no runtime error or no inclusion of not imported variable if using then import the package and use.
+
+                    Additional requirements:
+                    1. Use consistent color coding: blue for variables, green for final answers, red for important transformations
+                    2. Add wait() commands between key steps with appropriate timing (0.5-2 seconds) for better pacing
+                    3. Group related mathematical operations using VGroups for cleaner animations
+                    4. Use proper self references for all scene elements and camera operations
+                    5. Add progress_bar=True to animations that benefit from showing progression
+                    6. Ensure all text is properly positioned with appropriate font size (MathTex(...).scale(0.8))
+                    7. Include self.wait(3) at the end of the animation
+                    8. Use TracedPath for any graphical representations that involve motion
+                    9. Set background color with config.background_color = "#1f1f1f" at the class definition level
+
+                    Topic-specific animation techniques (3Blue1Brown style):
+                    - For trigonometry: Use the UnitCircle class with animated angles, include DashedLine for projections, and animate sine/cosine waves growing from the circle
+                    - For calculus: Use NumberPlane with animated slopes/tangent lines that change color based on values, zoom in progressively to show limits, and use area filling animations for integrals
+                    - For algebra: Transform equations with color highlighting for each step, use coordinate shifts to show operations, and grow/shrink terms during simplification
+                    - For geometry: Use opacity changes to reveal cross-sections, include dotted construction lines, and animate 3D objects rotating to show different perspectives
+                    - For statistics: Create animated histograms that transform into probability curves, use color gradients to show probability regions, and animate individual data points
+                    - For vectors: Show arrows in coordinate systems that transform/combine with smooth animations, use shadowing for projections
+                    - For series: Create animated stacking of terms, use color gradients to show convergence/divergence, and include partial sum tracking
+                    - For logarithms: Use area stretching/compressing to visualize log properties, animate exponential growth with highlighting
+                    - For complex numbers: Use the ComplexPlane class with transformations, animate mapping between rectangular and polar forms with rotating vectors
+
+                    Remember, provide ONLY executable code with NO explanatory text or markdown formatting.
+                    : {problem}
+                    """
+                    manim_response = model.generate_content(prompt_manim)
+                    st.session_state.manim_script = manim_response.text
+                    
+                    prompt_audio = f"Generate an audio explanation script that matches with the video: {problem}"
+                    audio_response = model.generate_content(prompt_audio)
+                    st.session_state.audio_script = audio_response.text
+
+                   # st.success("Solution and scripts generated!")
                 else:
                     st.warning("Please enter a math problem.")
 
+                if st.session_state.manim_script:
+                  st.write("### AI-Generated Manim Script:")
+                  st.code(st.session_state.manim_script, language="python")
+
+        # #   if st.session_state.audio_script:
+        #         st.write("### AI-Generated Audio Script:")
+        #         st.text_area("Audio Script:", st.session_state.audio_script)
+
+            
+
+            if st.session_state.solution_text:
+                st.write("### Solution:")
+                st.write(st.session_state.solution_text)
+                
+            if st.session_state.manim_script and st.session_state.audio_script:
+                if st.button("Generate Video Explanation"):
+                    st.session_state.video_generated = True  
+
+            if st.session_state.video_generated and st.session_state.solution_text:
+                with st.spinner("Generating video..."):
+                    try:
+                        video_path = generate_manim_video(st.session_state.manim_script)
+                        audio_path = generate_audio(st.session_state.audio_script)
+                        final_video_path = combine_video_audio(video_path, audio_path)
+                        
+                        st.video(final_video_path)
+                        st.success("Video generated successfully!")
+                    except Exception as e:
+                        st.error(f"Error generating video: {e}")
+
+
+      
         elif option == "Practice Questions":
             if st.button("Generate Practice Questions"):
                 prompt = f"""Generate 5 {skill_level.lower()} level {topic.lower()} math questions with detailed solutions. 
@@ -618,12 +794,20 @@ if st.session_state.get("user", None) is not None:
                     del st.session_state.correct_answers
                     st.rerun()
 
-        elif option == "Interactive Whiteboard":
-            drawing = st.text_area("Draw your mathematical expressions here (use ASCII art):")
-            if st.button("Interpret Drawing"):
-                prompt = f"Interpret the following ASCII art representation of a mathematical expression: {drawing}"
+        elif option == "Video Recommendation":
+            drawing = st.text_area("Search for best lectures:")
+            if st.button("Search"):
+                prompt = f"""If the topic **{drawing}** is not related to mathematics, return 'Out of scope.' 
+                Otherwise, provide a list of 3-5 top YouTube videos for learning about **{drawing}**. 
+                For each video, include: 
+                1. **Title:** The exact video title 
+                2. **Channel:** The name of the YouTube channel 
+                3. **URL:** The complete YouTube link 
+                4. **Description:** A brief one-sentence summary explaining why this video is useful Only include real, educational content from reputable math-focused channels such as 3Blue1Brown, Khan Academy, MIT OpenCourseWare, Professor Leonard, and Numberphile.
+                Avoid unnecessary explanations—just provide the structured information clearly.
+                dont generate the script in json format"""
                 interpretation = model.generate_content(prompt)
-                st.write("Interpretation:")
+                st.write("Results:")
                 st.write(interpretation.text)
 
         elif option  == "Virtual Math Manipulatives":

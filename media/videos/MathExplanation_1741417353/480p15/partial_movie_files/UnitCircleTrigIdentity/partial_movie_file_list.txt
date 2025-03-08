@@ -1,0 +1,5 @@
+# This file is used internally by FFMPEG.
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/MathExplanation_1741417353/480p15/partial_movie_files/UnitCircleTrigIdentity/4068429369_3285263482_1891967232.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/MathExplanation_1741417353/480p15/partial_movie_files/UnitCircleTrigIdentity/895926960_4217992463_3686318970.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/MathExplanation_1741417353/480p15/partial_movie_files/UnitCircleTrigIdentity/895926960_3076767673_1583018516.mp4'
+file 'file:C:/Users/fawme/OneDrive/Desktop/SASTRA/AI-Math-Tutor/media/videos/MathExplanation_1741417353/480p15/partial_movie_files/UnitCircleTrigIdentity/895926960_2552855209_3945636564.mp4'
