@@ -28,9 +28,9 @@ import pytesseract
 from PIL import Image
 
 # Configure the Google Gemini API
-genai.configure(api_key="AIzaSyD1dODYqRaI9jvHh-WufOHc4AQyHpYKCe4")
+genai.configure(api_key="")
 model = genai.GenerativeModel('gemini-1.5-flash-latest')
-set_api_key("sk_c06689b5f6b3ea65094dba8f2fcf8ccebba44cf84b9939f4")
+set_api_key("")
 # Set up the Streamlit app
 st.set_page_config(page_title="Advanced AI Math Tutor", layout="wide", initial_sidebar_state="expanded")
 
