@@ -1,5 +1,6 @@
 import streamlit as st
 import google.generativeai as genai
+from dotenv import load_dotenv
 import math
 import plotly.graph_objects as go
 import pandas as pd
@@ -16,7 +17,9 @@ import io
 import random
 
 # Configure the Google Gemini API
-genai.configure(api_key="AIzaSyBkaIzPFM_uJ-JfLj7AFbik9ml2upq2qy4")
+load_dotenv()
+api_key = os.getenv("GENAI_API_KEY")
+genai.configure(api_key=api_key)
 model = genai.GenerativeModel('gemini-1.5-flash-latest')
 
 # Set up the Streamlit app
