@@ -21,34 +21,6 @@ from PIL import Image
 pytesseract.pytesseract.tesseract_cmd = 'C:\Program Files\Tesseract-OCR\Tesseract.exe'
 from PIL import Image, ImageOps, ImageEnhance
 
-def extract_text_from_image(image_file):
-    try:
-        # Step 1: Open the image using PIL
-        image = Image.open(image_file)
-
-        # Step 2: Preprocessing for better OCR accuracy
-        # Convert to grayscale
-        image = image.convert('L')  # Convert to grayscale
-
-        # Increase contrast
-        enhancer = ImageEnhance.Contrast(image)
-        image = enhancer.enhance(2.0)  # Increase contrast by a factor of 2
-
-        # Binarization (thresholding)
-        image = image.point(lambda x: 0 if x < 128 else 255, '1')  # Apply thresholding
-
-        # Resize the image for better resolution
-        image = image.resize((image.width * 2, image.height * 2), Image.Resampling.LANCZOS)
-
-        # Step 3: Use Tesseract to extract text
-        extracted_text = pytesseract.image_to_string(image, lang='eng')
-
-        # Step 4: Return the extracted text
-        return extracted_text.strip()  # Remove leading/trailing whitespace
-    except Exception as e:
-        st.error(f"Error extracting text: {e}")
-        return None
-
 # Configure the Google Gemini API
 genai.configure(api_key="AIzaSyBkaIzPFM_uJ-JfLj7AFbik9ml2upq2qy4")
 model = genai.GenerativeModel('gemini-1.5-flash-latest')
@@ -190,15 +162,12 @@ a:hover {
 """, unsafe_allow_html=True)
 
 
-# Helper function to render mathematical expressions
 def render_math(text):
     st.write(text)
 
-# Database setup
 conn = sqlite3.connect('math_tutor.db')
 c = conn.cursor()
 
-# Create the users table if it doesn't exist.
 c.execute("""
     CREATE TABLE IF NOT EXISTS users (
         username TEXT PRIMARY KEY,
@@ -206,7 +175,7 @@ c.execute("""
         progress TEXT
     )
 """)
-conn.commit()  # Commit the table creation
+conn.commit()  
 
 c.execute("PRAGMA table_info(users)")
 columns = [column[1] for column in c.fetchall()]
@@ -287,7 +256,21 @@ def save_practice_set_as_pdf(practice_set):
     pdf_buffer.seek(0)
     return pdf_buffer
 
-# Login/Signup
+def extract_text_from_image(image_file):
+    try:
+        image = Image.open(image_file)
+        image = image.convert('L')  
+        enhancer = ImageEnhance.Contrast(image)
+        image = enhancer.enhance(2.0) 
+        image = image.point(lambda x: 0 if x < 128 else 255, '1') 
+        image = image.resize((image.width * 2, image.height * 2), Image.Resampling.LANCZOS)
+        extracted_text = pytesseract.image_to_string(image, lang='eng')
+        return extracted_text.strip()  
+    except Exception as e:
+        st.error(f"Error extracting text: {e}")
+        return None
+
+
 if 'user' not in st.session_state:
     st.session_state.user = None
 
@@ -323,14 +306,12 @@ if st.session_state.get("user", None) is not None:
 
     menu_choice = st.sidebar.radio("Select a Feature", ["Basic Features", "Advanced Features","Study Plan Generator","Performance Analytics"], key="menu_type")
     if menu_choice=="Basic Features":
-        # Main Navigation
         main_options = ["Problem Solver", "Handwritten Problem Solver", "Practice Questions", "Concept Explorer", "Formula Generator", "Quiz"]
         selected_main = st.sidebar.radio("Basic Features", main_options,key="main_menu_radio")
         if selected_main and selected_main != st.session_state.selected_menu:
             st.session_state.selected_menu = selected_main
 
     elif menu_choice=="Advanced Features":
-        # Advanced Features
         advanced_options = ["Virtual Math Manipulatives", "Historical Math Context", "Real-World Applications", "Customizable Practice Sets", "AI Tutor Chat"]
         selected_advanced = st.sidebar.radio("Advanced Features", advanced_options,key="advanced_menu_radio")   
         if selected_advanced and selected_advanced != st.session_state.selected_menu:
@@ -350,13 +331,11 @@ if st.session_state.get("user", None) is not None:
         
         st.sidebar.markdown("---")
 
-    # Skill/Topic Selection
     skill_level = st.sidebar.selectbox("Select your skill level:", ["Beginner", "Intermediate", "Advanced", "Expert"])
     topic = st.sidebar.selectbox("Choose a math topic:", ["Arithmetic", "Algebra", "Geometry", "Trigonometry", "Calculus", "Linear Algebra", "Statistics", "Number Theory", "Complex Analysis", "Differential Equations"])
 
     st.sidebar.markdown("---")
 
-    # Progress Tracking
     progress = get_progress(st.session_state.user)
     st.sidebar.subheader("Your Progress")
     st.sidebar.write(f"Completed Topics: {', '.join(progress['completed_topics'])}")
@@ -384,7 +363,7 @@ if st.session_state.get("user", None) is not None:
 
         elif option == "Practice Questions":
             if st.button("Generate Practice Questions"):
-                num_questions = 10  # Fixed number of questions
+                num_questions = 10
                 prompt = f"""Generate {num_questions} {skill_level.lower()} level {topic.lower()} math questions with detailed solutions.
                 Ensure each question and solution is in this format:
                 Q: [question]\nS: [solution]\nSeparate each question-answer pair with a blank line."""
@@ -397,7 +376,6 @@ if st.session_state.get("user", None) is not None:
                     
                     raw_text = response.text.strip()
                     
-                    # Ensure response is properly formatted
                     question_solution_pairs = re.findall(r"Q:\s*(.*?)\s*S:\s*(.*?)\n?", raw_text, re.DOTALL)
                     
                     if not question_solution_pairs:
@@ -431,10 +409,8 @@ if st.session_state.get("user", None) is not None:
                             except Exception as e:
                                 st.error(f"An error occurred while generating feedback: {e}")
                 
-                # Add some spacing before the reset button
                 st.markdown("""<br><br>""", unsafe_allow_html=True)
                 
-                # Reset Button
                 if st.button("Reset Questions"):
                     del st.session_state.practice_questions
                     st.rerun()
@@ -458,7 +434,7 @@ if st.session_state.get("user", None) is not None:
                             st.error("API response blocked or invalid. Please try again.")
                             return
                         render_math(response.text)
-                        update_progress(st.session_state.user, concept)  # Use user-input concept instead of menu topic
+                        update_progress(st.session_state.user, concept)  
                     except Exception as e:
                         st.error(f"An error occurred: {e}")
                 else:
@@ -482,7 +458,7 @@ if st.session_state.get("user", None) is not None:
                             st.error("API response blocked or invalid. Please try again.")
                             return
                         render_math(response.text)
-                        update_progress(st.session_state.user, formula_topic)  # Use user-input formula topic instead of menu topic
+                        update_progress(st.session_state.user, formula_topic)  
                     except Exception as e:
                         st.error(f"An error occurred: {e}")
                 else:
@@ -490,7 +466,7 @@ if st.session_state.get("user", None) is not None:
 
         elif option == "Quiz":
             if "quiz_data" not in st.session_state:
-                st.session_state.quiz_data = None  # Initialize quiz storage
+                st.session_state.quiz_data = None 
 
             if st.button("Generate Quiz"):
                 if st.session_state.quiz_data is None:
@@ -517,7 +493,6 @@ if st.session_state.get("user", None) is not None:
                     quiz_text = response.text.strip()
 
                     try:
-                        # Improved regex to correctly extract all 5 questions even if spacing is inconsistent
                         question_pattern = re.findall(
                             r"Q:\s*(.*?)\s*A\)\s*(.*?)\s*B\)\s*(.*?)\s*C\)\s*(.*?)\s*D\)\s*(.*?)\s*Correct:\s*([A-D])\s*Explanation:\s*(.*?)\s*(?=Q:|$)", 
                             quiz_text, 
@@ -728,7 +703,6 @@ if st.session_state.get("user", None) is not None:
                 st.subheader("🌍 Real-World Math in Action:")
                 st.write(st.session_state.generated_scenario)
                 
-                # Display Sample Solved Question
                 st.subheader("✅ Sample Solved Question:")
                 sample_question_prompt = f"""Generate a worked-out example based on the following real-world scenario:
                 {st.session_state.generated_scenario}
@@ -740,11 +714,9 @@ if st.session_state.get("user", None) is not None:
                 else:
                     st.error("Failed to retrieve a sample solution. Please try again.")
                 
-                # Display Practice Questions
                 st.subheader("📝 Practice Questions:")
                 st.write(st.session_state.generated_questions)
-                
-                # Reset Button
+
                 st.markdown("""<br>""", unsafe_allow_html=True)
                 if st.button("🔄 Reset", key="reset_scenario"):
                     st.session_state.generated_scenario = None
@@ -884,13 +856,11 @@ if st.session_state.get("user", None) is not None:
                     render_math(response.text)
                     update_progress(st.session_state.user, topic)
 
-    # Main content based on selected page
     st.markdown("<div class='main-content'>", unsafe_allow_html=True)
     if st.session_state.selected_menu:
         st.title(st.session_state.selected_menu)
-        execute_function(st.session_state.selected_menu)  # Call the relevant function       
+        execute_function(st.session_state.selected_menu)    
     st.markdown("</div>", unsafe_allow_html=True)
-    # Footer
     st.markdown("---")
     st.markdown("Advanced Math Tutor")
 
